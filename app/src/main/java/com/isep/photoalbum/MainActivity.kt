@@ -2,10 +2,13 @@ package com.isep.photoalbum
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.webkit.MimeTypeMap
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE_IMPORT_FILE = 123
     private val importedFiles = ArrayList<File>() // List to track imported files
     private var importFileName: String? = null
+    private var imagesPerLine = 3 // Default number of images per line
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,8 +115,8 @@ class MainActivity : AppCompatActivity() {
 
                 if (!capturedPhotoPath.isNullOrEmpty()) {
                     importedFiles.add(File(capturedPhotoPath))
-                    updateImportedFilesView()
                 }
+                updateImportedFilesView()
             }
         }
     }
@@ -129,50 +133,56 @@ class MainActivity : AppCompatActivity() {
         updateImportedFilesView()
     }
 
-    // Dynamically generate views for imported files and add them to the DocumentList layout
     private fun updateImportedFilesView() {
         val documentList = findViewById<LinearLayout>(R.id.DocumentList)
         documentList.removeAllViews() // Clear the existing views
 
-        for (file in importedFiles) {
+        val imagesPerLine = 3
+        var currentLineLayout: LinearLayout? = null
+
+        for ((index, file) in importedFiles.withIndex()) {
             if (file.isFile) {
+                if (index % imagesPerLine == 0) {
+                    // Create a new LinearLayout for each row
+                    currentLineLayout = LinearLayout(this)
+                    currentLineLayout.layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    currentLineLayout.orientation = LinearLayout.HORIZONTAL
+                    documentList.addView(currentLineLayout)
+                }
+
                 val fileLayout = LinearLayout(this)
                 fileLayout.layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-
-                val fileButton = Button(this)
-                fileButton.text = file.name
-                fileButton.setOnClickListener {
-                    openDocument(file)
-                }
-
-                val removeButton = Button(this)
-                removeButton.text = "X"
-                removeButton.layoutParams = LinearLayout.LayoutParams(
                     0,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
-                    0.75f
+                    1f
                 )
-                removeButton.setOnClickListener {
-                    openDocument(file)
-                }
+                fileLayout.gravity = Gravity.CENTER
+                fileLayout.orientation = LinearLayout.VERTICAL // Set orientation to vertical
+
+                val imageView = ImageView(this)
+                imageView.layoutParams = LinearLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.image_width),
+                    resources.getDimensionPixelSize(R.dimen.image_height)
+                )
+                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+
+                // Load the image using BitmapFactory
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                imageView.setImageBitmap(bitmap)
 
                 val xButton = Button(this)
                 xButton.text = "X"
-                xButton.layoutParams = LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    0.25f
-                )
                 xButton.setOnClickListener {
                     removeFile(file)
                 }
 
-                fileLayout.addView(fileButton)
+                fileLayout.addView(imageView)
                 fileLayout.addView(xButton)
-                documentList.addView(fileLayout)
+
+                currentLineLayout?.addView(fileLayout)
             }
         }
     }
@@ -187,29 +197,6 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "File couldn't be removed", Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    // Open the document using an appropriate application (Draft)
-    private fun openDocument(file: File) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
-        val mimeType = getMimeType(file)
-
-        intent.setDataAndType(uri, mimeType);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-        try {
-            startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, "No corresponding applications were found.", Toast.LENGTH_LONG).show()
-            e.printStackTrace()
-        }
-    }
-
-    // Get the MIME type of the file (Draft)
-    private fun getMimeType(file: File): String? {
-        val extension = MimeTypeMap.getFileExtensionFromUrl(file.absolutePath)
-        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
     }
 
     // Generate a unique file name if the user didn't specify one
