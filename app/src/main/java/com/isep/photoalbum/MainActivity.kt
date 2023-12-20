@@ -137,7 +137,44 @@ class MainActivity : AppCompatActivity() {
         val documentList = findViewById<LinearLayout>(R.id.DocumentList)
         documentList.removeAllViews() // Clear the existing views
 
-        val imagesPerLine = 3
+        // Create a layout for the buttons to modify the number of images per line
+        val buttonLayout = LinearLayout(this)
+        buttonLayout.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        buttonLayout.orientation = LinearLayout.HORIZONTAL
+
+        // Button to set 1 image per line
+        val oneImageButton = Button(this)
+        oneImageButton.text = "1"
+        oneImageButton.setOnClickListener {
+            imagesPerLine = 1
+            updateImportedFilesView()
+        }
+
+        // Button to set 3 images per line
+        val threeImagesButton = Button(this)
+        threeImagesButton.text = "3"
+        threeImagesButton.setOnClickListener {
+            imagesPerLine = 3
+            updateImportedFilesView()
+        }
+
+        // Button to set 6 images per line
+        val sixImagesButton = Button(this)
+        sixImagesButton.text = "6"
+        sixImagesButton.setOnClickListener {
+            imagesPerLine = 6
+            updateImportedFilesView()
+        }
+
+        buttonLayout.addView(oneImageButton)
+        buttonLayout.addView(threeImagesButton)
+        buttonLayout.addView(sixImagesButton)
+
+        documentList.addView(buttonLayout)
+
         var currentLineLayout: LinearLayout? = null
 
         for ((index, file) in importedFiles.withIndex()) {
@@ -157,17 +194,18 @@ class MainActivity : AppCompatActivity() {
                 fileLayout.layoutParams = LinearLayout.LayoutParams(
                     0,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
+                    1f / imagesPerLine
                 )
                 fileLayout.gravity = Gravity.CENTER
                 fileLayout.orientation = LinearLayout.VERTICAL // Set orientation to vertical
 
                 val imageView = ImageView(this)
                 imageView.layoutParams = LinearLayout.LayoutParams(
-                    resources.getDimensionPixelSize(R.dimen.image_width),
-                    resources.getDimensionPixelSize(R.dimen.image_height)
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
                 )
-                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                imageView.adjustViewBounds = true
+                imageView.scaleType = ImageView.ScaleType.FIT_CENTER
 
                 // Load the image using BitmapFactory
                 val bitmap = BitmapFactory.decodeFile(file.absolutePath)
