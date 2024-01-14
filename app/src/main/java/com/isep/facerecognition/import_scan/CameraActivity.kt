@@ -1,4 +1,4 @@
-package com.isep.photoalbum.import_scan
+package com.isep.facerecognition.import_scan
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -18,7 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
-import com.isep.photoalbum.R
+import com.isep.facerecognition.R
 import java.io.File
 import java.util.Date
 import java.util.Locale

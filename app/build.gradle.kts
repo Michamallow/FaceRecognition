@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.isep.photoalbum"
+    namespace = "com.isep.facerecognition"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.isep.photoalbum"
+        applicationId = "com.isep.facerecognition"
         minSdk = 28
         targetSdk = 33
         versionCode = 1

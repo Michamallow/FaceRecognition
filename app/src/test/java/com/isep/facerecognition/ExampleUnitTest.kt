@@ -1,4 +1,4 @@
-package com.isep.photoalbum
+package com.isep.facerecognition
 
 import org.junit.Test
 

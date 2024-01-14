@@ -1,4 +1,4 @@
-package com.isep.photoalbum.import_scan
+package com.isep.facerecognition.import_scan
 
 import android.app.Dialog
 import android.content.Context
@@ -8,7 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import com.isep.photoalbum.R
+import com.isep.facerecognition.R
 
 class PopupDialog(context: Context, private val optionSelectedListener: OnOptionSelectedListener) : Dialog(context) {
 
